@@ -1,0 +1,21 @@
+name: caprover
+services:
+  caprover:
+    image: caprover/caprover:latest
+    container_name: caprover
+    hostname: caprover
+    restart: always
+    ports:
+      - '172.17.0.1:59065:80'
+      - '172.17.0.1:59066:443'
+      - '172.17.0.1:59067:3000'
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - /var/lib/srv/$USER/docker/caprover/caprover/latest/rootfs/data/caprover:/var/lib/caprover
+    networks:
+      caprover:
+
+networks:
+  caprover:
+    name: caprover
+    external: false
