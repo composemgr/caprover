@@ -1,0 +1,33 @@
+# nginx proxy address - http://172.17.0.1:59065
+
+name: caprover
+x-logging: &default-logging
+  options:
+    max-size: '5m'
+    max-file: '1'
+  driver: json-file
+
+services:
+  app:
+    image: caprover/caprover:latest
+    container_name: caprover-app
+    hostname: ${BASE_HOST_NAME:-$HOSTNAME}
+    restart: always
+    pull_policy: always
+    logging: *default-logging
+    environment:
+      TZ: ${TZ:-America/New_York}
+    ports:
+      - '172.17.0.1:59065:80'
+      - '172.17.0.1:59066:443'
+      - '172.17.0.1:59067:3000'
+    volumes:
+      - './rootfs/data/caprover:/var/lib/caprover'
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    networks:
+      - caprover
+
+networks:
+  caprover:
+    name: caprover
+    external: false
