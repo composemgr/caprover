@@ -45,7 +45,7 @@ See `docker-compose.yaml` for complete list of configurable options.
 
 ## 📂 Volumes
 
-- `./rootfs/data/caprover` - Data storage
+- `./volumes/data/caprover` - Data storage
 
 ## 🔍 Logging
 
