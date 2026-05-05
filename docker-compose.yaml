@@ -22,7 +22,7 @@ services:
       - '172.17.0.1:59066:443'
       - '172.17.0.1:59067:3000'
     volumes:
-      - './rootfs/data/caprover:/var/lib/caprover'
+      - './volumes/data/caprover:/var/lib/caprover'
       - '/var/run/docker.sock:/var/run/docker.sock'
     networks:
       - caprover
