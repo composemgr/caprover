@@ -19,6 +19,8 @@ services:
       TZ: ${TZ:-America/New_York}
       ACCEPTED_TERMS: ${CAPROVER_ACCEPTED_TERMS:-true}
       MAIN_NODE_IP_ADDRESS: ${CAPROVER_MAIN_NODE_IP:-}
+      CONTAINER_NAME: caprover-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
     ports:
       - '172.17.0.1:59065:80'
       - '172.17.0.1:59066:443'
@@ -28,8 +30,30 @@ services:
       - '/var/run/docker.sock:/var/run/docker.sock'
     networks:
       - caprover
+      - proxy
+      - cloudflare
+    labels:
+      - 'traefik.enable=true'
+      - 'cloudflare.enable=true'
+      - 'traefik.docker.network=proxy'
+      - 'cloudflare.service=http://caprover-app:80'
+      - 'cloudflare.hostname=caprover.${CLOUDFLARE_ZONE_NAME:-}'
+      - 'traefik.http.routers.caprover-app.entrypoints=http'
+      - 'traefik.http.routers.caprover-app-secure.tls=true'
+      - 'traefik.http.routers.caprover-app.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
+      - 'traefik.http.middlewares.caprover-app-https-redirect.redirectscheme.scheme=https'
+      - 'traefik.http.routers.caprover-app.middlewares=caprover-app-https-redirect'
+      - 'traefik.http.routers.caprover-app-secure.entrypoints=https'
+      - 'traefik.http.routers.caprover-app-secure.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
+      - 'traefik.http.routers.caprover-app-secure.tls.certresolver=cloudflare'
+      - 'traefik.http.routers.caprover-app-secure.service=caprover-app'
+      - 'traefik.http.services.caprover-app.loadbalancer.server.port=80'
 
 networks:
   caprover:
     name: caprover
     external: false
+  proxy:
+    external: true
+  cloudflare:
+    external: true
