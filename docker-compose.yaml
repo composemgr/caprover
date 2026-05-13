@@ -17,6 +17,8 @@ services:
     logging: *default-logging
     environment:
       TZ: ${TZ:-America/New_York}
+      ACCEPTED_TERMS: ${CAPROVER_ACCEPTED_TERMS:-true}
+      MAIN_NODE_IP_ADDRESS: ${CAPROVER_MAIN_NODE_IP:-}
     ports:
       - '172.17.0.1:59065:80'
       - '172.17.0.1:59066:443'
