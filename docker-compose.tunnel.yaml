@@ -1,0 +1,39 @@
+name: caprover
+x-logging: &default-logging
+  options:
+    max-size: '5m'
+    max-file: '1'
+  driver: json-file
+
+services:
+  app:
+    image: caprover/caprover:latest
+    container_name: caprover-app
+    domainname: ${BASE_DOMAIN_NAME:-example.com}
+    hostname: ${BASE_HOST_NAME:-$HOSTNAME}
+    restart: always
+    pull_policy: always
+    logging: *default-logging
+    environment:
+      TZ: ${TZ:-America/New_York}
+      ACCEPTED_TERMS: ${CAPROVER_ACCEPTED_TERMS:-true}
+      MAIN_NODE_IP_ADDRESS: ${CAPROVER_MAIN_NODE_IP:-}
+      CONTAINER_NAME: caprover-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
+    volumes:
+      - './volumes/data/caprover:/var/lib/caprover'
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    labels:
+      - 'cloudflare.enable=true'
+      - 'cloudflare.service=http://caprover-app:3000'
+      - 'cloudflare.hostname=${BASE_HOST_NAME:-$HOSTNAME}'
+    networks:
+      - caprover
+      - cloudflare
+
+networks:
+  caprover:
+    name: caprover
+    external: false
+  cloudflare:
+    external: true

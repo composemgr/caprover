@@ -1,4 +1,4 @@
-# nginx proxy address - http://172.17.0.1:59065
+# nginx proxy address - http://172.17.0.1:64133
 
 name: caprover
 x-logging: &default-logging
@@ -11,6 +11,7 @@ services:
   app:
     image: caprover/caprover:latest
     container_name: caprover-app
+    domainname: ${BASE_DOMAIN_NAME:-example.com}
     hostname: ${BASE_HOST_NAME:-$HOSTNAME}
     restart: always
     pull_policy: always
@@ -22,38 +23,14 @@ services:
       CONTAINER_NAME: caprover-app
       HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
     ports:
-      - '172.17.0.1:59065:80'
-      - '172.17.0.1:59066:443'
-      - '172.17.0.1:59067:3000'
+      - '172.17.0.1:64133:3000'
     volumes:
       - './volumes/data/caprover:/var/lib/caprover'
       - '/var/run/docker.sock:/var/run/docker.sock'
     networks:
       - caprover
-      - proxy
-      - cloudflare
-    labels:
-      - 'traefik.enable=true'
-      - 'cloudflare.enable=true'
-      - 'traefik.docker.network=proxy'
-      - 'cloudflare.service=http://caprover-app:80'
-      - 'cloudflare.hostname=caprover.${CLOUDFLARE_ZONE_NAME:-}'
-      - 'traefik.http.routers.caprover-app.entrypoints=http'
-      - 'traefik.http.routers.caprover-app-secure.tls=true'
-      - 'traefik.http.routers.caprover-app.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
-      - 'traefik.http.middlewares.caprover-app-https-redirect.redirectscheme.scheme=https'
-      - 'traefik.http.routers.caprover-app.middlewares=caprover-app-https-redirect'
-      - 'traefik.http.routers.caprover-app-secure.entrypoints=https'
-      - 'traefik.http.routers.caprover-app-secure.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
-      - 'traefik.http.routers.caprover-app-secure.tls.certresolver=cloudflare'
-      - 'traefik.http.routers.caprover-app-secure.service=caprover-app'
-      - 'traefik.http.services.caprover-app.loadbalancer.server.port=80'
 
 networks:
   caprover:
     name: caprover
     external: false
-  proxy:
-    external: true
-  cloudflare:
-    external: true
