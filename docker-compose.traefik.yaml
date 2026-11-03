@@ -20,6 +20,12 @@ services:
       MAIN_NODE_IP_ADDRESS: ${CAPROVER_MAIN_NODE_IP:-}
       CONTAINER_NAME: caprover-app
       HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
+    healthcheck:
+      test: ['CMD', 'curl', '-s', '-o', '/dev/null', '--max-time', '5', 'http://127.0.0.1:3000/']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     volumes:
       - './volumes/data/caprover:/var/lib/caprover'
       - '/var/run/docker.sock:/var/run/docker.sock'
